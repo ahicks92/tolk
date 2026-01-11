@@ -3,12 +3,12 @@ OUTDIR = $(MAKEDIR)
 !endif
 
 CFLAGS = /nologo /O2 /EHsc /LD /Gw /W4 /WL \
-	/D_EXPORTING /DUNICODE /D_WITH_JNI
+	/D_EXPORTING /DUNICODE
 RFLAGS = /nologo
 
 SYSLIBS = User32.Lib Ole32.Lib OleAut32.Lib
 
-SOURCES = Tolk.cpp TolkJNI.cpp \
+SOURCES = Tolk.cpp \
 	ScreenReaderDriverJAWS.cpp ScreenReaderDriverNVDA.cpp \
 	ScreenReaderDriverSA.cpp ScreenReaderDriverSNova.cpp \
 	ScreenReaderDriverWE.cpp ScreenReaderDriverZT.cpp \

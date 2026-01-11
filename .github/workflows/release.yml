@@ -1,0 +1,52 @@
+name: Build and Release
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pandoc
+        run: choco install pandoc -y
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Build
+        run: |
+          cd src
+          rc /nologo /fo Tolk.res Tolk.rc
+          cl /nologo /O2 /EHsc /LD /Gw /W4 /WL /D_EXPORTING /DUNICODE /Fe:Tolk.dll Tolk.cpp ScreenReaderDriverJAWS.cpp ScreenReaderDriverNVDA.cpp ScreenReaderDriverSA.cpp ScreenReaderDriverSNova.cpp ScreenReaderDriverWE.cpp ScreenReaderDriverZT.cpp ScreenReaderDriverSAPI.cpp fsapi.c wineyes.c zt.c Tolk.res User32.Lib Ole32.Lib OleAut32.Lib
+
+      - name: Collect artifacts
+        run: |
+          mkdir dist
+          copy src\Tolk.dll dist\
+          copy src\Tolk.lib dist\
+          copy libs\x64\* dist\
+
+      - name: Build docs
+        run: |
+          cd docs
+          pandoc -s -o README.html README.md
+          copy README.html ..\dist\
+
+      - name: Copy licenses
+        run: copy LICENSE*.txt dist\
+
+      - name: Create zip
+        run: 7z a tolk.zip dist\*
+
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: tolk.zip
+          generate_release_notes: true
